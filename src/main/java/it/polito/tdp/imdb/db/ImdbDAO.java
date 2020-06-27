@@ -106,4 +106,30 @@ public class ImdbDAO {
 		}
 	}
 
+	public static List<Actor> getAttoriPerGenere(String genere) {
+		String sql = "SELECT DISTINCT a.id, a.first_name, a.last_name, a.gender "
+				+ "FROM roles AS r, actors AS a, movies_genres AS mg " + "WHERE mg.movie_id=r.movie_id "
+				+ "AND r.actor_id=a.id " + "AND mg.genre= ? ";
+		List<Actor> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, genere);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				Actor actor = new Actor(res.getInt("id"), res.getString("first_name"), res.getString("last_name"),
+						res.getString("gender"));
+
+				result.add(actor);
+			}
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 }
