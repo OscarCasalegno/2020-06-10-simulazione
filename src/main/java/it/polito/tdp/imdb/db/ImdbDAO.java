@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import it.polito.tdp.imdb.model.Actor;
+import it.polito.tdp.imdb.model.Adiacenze;
 import it.polito.tdp.imdb.model.Director;
 import it.polito.tdp.imdb.model.Movie;
 
@@ -122,6 +124,33 @@ public class ImdbDAO {
 						res.getString("gender"));
 
 				result.add(actor);
+			}
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static List<Adiacenze> getAdiacenze(Map<Integer, Actor> idAttori, String genere) {
+		String sql = "SELECT r1.actor_id as id1, r2.actor_id as id2, COUNT(DISTINCT r1.movie_id) as peso "
+				+ "FROM roles AS r1,roles AS r2, movies_genres AS mg " + "WHERE r1.movie_id=r2.movie_id "
+				+ "AND r1.actor_id < r2.actor_id " + "AND mg.movie_id=r2.movie_id " + "AND mg.genre= ? "
+				+ "GROUP BY r1.actor_id, r2.actor_id";
+		List<Adiacenze> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, genere);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				Adiacenze ad = new Adiacenze(idAttori.get(res.getInt("id1")), idAttori.get(res.getInt("id2")),
+						res.getInt("peso"));
+
+				result.add(ad);
 			}
 			conn.close();
 			return result;
