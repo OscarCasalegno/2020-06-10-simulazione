@@ -16,6 +16,7 @@ import it.polito.tdp.imdb.db.ImdbDAO;
 public class Model {
 	private Graph<Actor, DefaultWeightedEdge> grafo;
 	private Map<Integer, Actor> idAttori;
+	private Simulator sim;
 
 	public List<String> getGeneri() {
 
@@ -57,7 +58,29 @@ public class Model {
 		ConnectivityInspector<Actor, DefaultWeightedEdge> con = new ConnectivityInspector<>(this.grafo);
 		List<Actor> attori = new ArrayList<>(con.connectedSetOf(attore));
 		attori.sort(null);
+		attori.remove(attore);
 		return attori;
+	}
+
+	public void simula(Integer giorni) {
+		sim = new Simulator();
+		sim.init(grafo);
+		sim.setNumeroGiorni(giorni);
+		sim.run();
+	}
+
+	public Integer getGiorniPausa() {
+		return sim.getNumeroPause();
+	}
+
+	public List<Actor> getIntervistati() {
+		return sim.getIntervistati();
+	}
+
+	public boolean isReady() {
+		if (this.grafo != null)
+			return true;
+		return false;
 	}
 
 }
